@@ -3,6 +3,7 @@ package modules
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"tutorial/entity"
 
 	"github.com/pkg/errors"
@@ -25,9 +26,9 @@ func NewRepository(ds *sql.DB) Repository {
 }
 
 func (c db) GetByID(ctx context.Context, id int32) (*entity.User, error) {
-	sqlQuery := `select * from "user" u where u.user_id = $1 `
+	sqlQuery := `select * from "user" u where u.user_id = $1 ;`
 	user := &entity.User{}
-	err := c.conn.QueryRow(sqlQuery, id).Scan(user.User_id, user.Name, user.Email, user.Age)
+	err := c.conn.QueryRow(sqlQuery, id).Scan(&user.User_id, &user.Name, &user.Email, &user.Age)
 	if err != nil {
 		errors.Wrap(err, "Failed getting User")
 		return nil, err
@@ -36,19 +37,23 @@ func (c db) GetByID(ctx context.Context, id int32) (*entity.User, error) {
 }
 
 func (c db) GetByName(ctx context.Context, name string) ([]*entity.User, error) {
-	sqlQuery := `select * from "user" u where u."name" like '%$1%'`
+	name = "%" + name + "%"
+	sqlQuery := `select * from "user" u where u."name" ilike $1`
 	res, err := c.conn.Query(sqlQuery, name)
 	if err != nil {
 		errors.Wrap(err, "Failed getting User")
 		return nil, err
 	}
+	defer res.Close()
+	fmt.Println(res)
 	users := []*entity.User{}
 	for res.Next() {
 		temp := entity.User{}
-		if err = res.Scan(temp.User_id, temp.Name, temp.Email, temp.Age); err != nil {
+		if err = res.Scan(&temp.User_id, &temp.Name, &temp.Email, &temp.Age); err != nil {
 			errors.Wrap(err, "Failed getting User")
 			return nil, err
 		}
+		fmt.Println(temp)
 		users = append(users, &temp)
 	}
 	return users, nil

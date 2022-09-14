@@ -1,0 +1,51 @@
+syntax = "proto3";
+package prototype;
+
+option go_package = "./prototype";
+
+service Tutorial {
+    rpc CreateUser(CreateData) returns (SuccessMessage) {}
+    rpc GetByID(GetDatabyID) returns (DataReturn) {}
+    rpc GetByName(GetDatabyName) returns (ListDataReturn) {}
+    rpc UpdateUser(UpdateData) returns (SuccessMessage) {}
+    rpc DeleteUser(DeleteData) returns (SuccessMessage) {}
+}
+
+message CreateData {
+    string name = 1;
+    string email = 2;
+    int32 age = 3;
+}
+message GetDatabyID {
+    int32 id = 1;
+}
+message GetDatabyName {
+    string name = 1;
+}
+message UpdateData {
+    int32 id = 1;
+    string name = 2;
+    string email = 3;
+    int32 age = 4;
+}
+message DeleteData {
+    int32 id = 1;
+}
+message SuccessMessage {
+    string message = 1;
+    int32 code = 2;
+}
+message DataReturn {
+    User user = 1;
+}
+
+message ListDataReturn {
+    repeated User data = 1;
+}
+
+message User {
+    int32 id = 1;
+    string name = 2;
+    string email = 3;
+    int32 age = 4;
+}
